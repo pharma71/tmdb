@@ -1,0 +1,114 @@
+/* Allgemeine Stile für die TMDB-Liste */
+.tmdb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    font-family: Arial, sans-serif;
+}
+
+.tmdb-item {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tmdb-poster-container {
+    flex-shrink: 0;
+}
+
+.tmdb-poster {
+    width: 150px;
+    height: auto;
+    display: block;
+}
+
+.tmdb-info {
+    padding: 15px;
+    flex: 1;
+}
+
+.tmdb-title {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.tmdb-release-date,
+.tmdb-popularity,
+.tmdb-avg {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.tmdb-overview {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+    min-height: 60px;
+}
+
+.tmdb-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.tmdb-pagination a {
+    text-decoration: none;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f8f8;
+    color: #333;
+    font-size: 14px;
+    margin: 0 3px;
+}
+
+.tmdb-pagination a:hover {
+    background: #e8e8e8;
+}
+
+.tmdb-page-info {
+    font-size: 14px;
+    color: #777;
+    font-weight: bold;
+    margin: 0 15px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tmdb-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.tmdb-actions a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #555;
+    font-size: 14px;
+    gap: 5px;
+}
+
+.tmdb-actions i {
+    font-size: 14px;
+}
+
+.tmdb-actions a:hover {
+    color: #000;
+}
