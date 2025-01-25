@@ -73,6 +73,21 @@ function tmdb_get_api_key() {
     return get_option('tmdb_api_key', '');
 }
 
+// Genres aus der lokalen Datei laden
+function tmdb_get_genres_from_file() {
+    $file_path = __DIR__ . '/genres.json'; // Pfad zur genres.json
+    
+    if (!file_exists($file_path)) {
+        return []; // Wenn die Datei nicht existiert, leere Liste zurückgeben
+    }
+
+    $data = file_get_contents($file_path);
+    $genres = json_decode($data, true);
+
+    // Optional: Typen (movie/tv) differenzieren, falls notwendig
+    return isset($genres['genres']) ? $genres['genres'] : [];
+}
+
 // Shortcode zur Anzeige der Filme oder Serien
 function tmdb_display_content($atts) {
     global $wp;
@@ -117,12 +132,42 @@ function tmdb_display_content($atts) {
     }
 
     $page_count = $data['total_pages'];
+    $movie_active = $type === 'movie' ? 'active' : '';
+    $tv_active = $type === 'tv' ? 'active' : '';
+
+    // Genres aus der Datei laden und zuordnen
+    $genres = tmdb_get_genres_from_file();
+   
+    $genre_map = [];
+    foreach ($genres as $genre) {
+        $genre_map[$genre['id']] = $genre['name'];
+    }
+
+     // Genres in Items integrieren
+     foreach ($data['results'] as &$item) {
+        $item['genres'] = array_map(function ($genre_id) use ($genre_map) {
+            return $genre_map[$genre_id] ?? 'Unbekannt';
+        }, $item['genre_ids']);
+    }
 
     $output = '
-    <link href="'.TMDB_RESSOURCES_DIR.'/fontawesome/css/fontawesome.css" rel="stylesheet" />
-    <link href="'.TMDB_RESSOURCES_DIR.'/fontawesome/css/brands.css" rel="stylesheet" />
-    <link href="'.TMDB_RESSOURCES_DIR.'/fontawesome/css/solid.css" rel="stylesheet" />';
+    <link href="'.TMDB_RESSOURCES_DIR.'fontawesome/css/fontawesome.css" rel="stylesheet" />
+    <link href="'.TMDB_RESSOURCES_DIR.'fontawesome/css/brands.css" rel="stylesheet" />
+    <link href="'.TMDB_RESSOURCES_DIR.'fontawesome/css/solid.css" rel="stylesheet" />';
+
+    $output .= "
+    <navigation>
+        <div class='tmdb-navigation'>
+            <a href='?page_id={$page_id}&type=movie&current_page={$current_page}'>
+                <button class='nav-button {$movie_active}' data-type='movie'>Filme</button>
+            </a>
+            <a href='?page_id={$page_id}&type=tv&current_page={$current_page}'>
+                <button class='nav-button {$tv_active}' data-type='tv'>TV</button>
+            </a>
+        </div>
+    </navigation>";
    
+
 
     // Ausgabe der Ergebnisse
     $output .= '<div class="tmdb-list">';
@@ -134,12 +179,14 @@ function tmdb_display_content($atts) {
         $release_date = $item['release_date'] ?? $item['first_air_date'];
         $release_date = DateTime::createFromFormat('Y-m-d', $release_date)->format('d.m.Y');
         $overview = $item['overview'];
+        $genres = implode(', ', $item['genres']);
 
         $output .= '<div class="tmdb-item">';
         $output .= "<div class='tmdb-poster-container'><img src='{$poster}' alt='{$title}' class='tmdb-poster'></div>";
         $output .= "<div class='tmdb-info'>";
         $output .= "<h3 class='tmdb-title'>{$title}</h3>";
         $output .= "<p class='tmdb-release-date'>Veröffentlichungsdatum: {$release_date}</p>";
+        $output .= "<p class='tmdb-genres'><strong>Genres:</strong> {$genres}</p>";
         $output .= "<p class='tmdb-popularity'>Beliebtheit: {$popularity}</p>";
         $output .= "<p class='tmdb-avg'>Bewertung: {$popularity_avg}/10</p>";
         $output .= "<p class='tmdb-overview'>{$overview}</p>";
@@ -170,7 +217,7 @@ add_shortcode('tmdb_list', 'tmdb_display_content');
 
 // Styles hinzufügen
 function tmdb_enqueue_styles() {
-    wp_enqueue_style('tmdb-styles', plugin_dir_url(__FILE__) . 'styles.css');
+    wp_enqueue_style('tmdb-styles', TMDB_RESSOURCES_DIR . 'css/styles.css');
 }
 add_action('wp_enqueue_scripts', 'tmdb_enqueue_styles');
 
